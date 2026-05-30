@@ -4,6 +4,7 @@ import 'package:web_end/models/user_model.dart';
 import 'package:web_end/screen/auth/login.dart';
 import 'package:web_end/screen/cashier/cashier_products_screen.dart';
 import 'package:web_end/screen/customer/customers_screen.dart';
+import 'package:web_end/screen/sale/sales_screen.dart';
 import 'package:web_end/screen/stock/stock_screen.dart';
 import 'package:web_end/services/auth/auth_service.dart';
 import 'package:web_end/theme/app_theme.dart';
@@ -34,6 +35,11 @@ class _CashierShellState extends State<CashierShell> {
   UserModel get _user => widget.user;
 
   static const _destinations = [
+    _CashierNavItem(
+      icon: Icons.point_of_sale_outlined,
+      selectedIcon: Icons.point_of_sale,
+      label: 'Sales',
+    ),
     _CashierNavItem(
       icon: Icons.inventory_2_outlined,
       selectedIcon: Icons.inventory_2,
@@ -89,13 +95,15 @@ class _CashierShellState extends State<CashierShell> {
   Widget _buildContent() {
     switch (_selectedIndex) {
       case 0:
+        return const SalesScreen();
+      case 1:
         return const Padding(
           padding: EdgeInsets.all(24),
           child: CashierProductsScreen(),
         );
-      case 1:
-        return const CustomersScreen();
       case 2:
+        return const CustomersScreen();
+      case 3:
         return const StockScreen(canAddStock: false);
       default:
         return const Padding(
@@ -107,10 +115,12 @@ class _CashierShellState extends State<CashierShell> {
 
   String get _screenTitle {
     switch (_selectedIndex) {
-      case 1:
-        return 'Smart POS — Customers';
       case 2:
+        return 'Smart POS — Customers';
+      case 3:
         return 'Smart POS — Stock';
+      case 0:
+        return 'Smart POS — Sales';
       default:
         return 'Smart POS — Products';
     }

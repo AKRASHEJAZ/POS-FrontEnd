@@ -21,6 +21,11 @@ const List<AppNavDestination> appNavDestinations = [
     label: 'Dashboard',
   ),
   AppNavDestination(
+    icon: Icons.point_of_sale_outlined,
+    selectedIcon: Icons.point_of_sale,
+    label: 'Sales',
+  ),
+  AppNavDestination(
     icon: Icons.shopping_cart_outlined,
     selectedIcon: Icons.shopping_cart,
     label: 'Product',

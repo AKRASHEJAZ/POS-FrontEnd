@@ -59,13 +59,17 @@ class StockBatchDetailDialog extends StatelessWidget {
                           Expanded(
                             child: Text(
                               'Stock batch details',
-                              style: AppTheme.title(context)
-                                  ?.copyWith(fontSize: 22),
+                              style: AppTheme.title(
+                                context,
+                              )?.copyWith(fontSize: 22),
                             ),
                           ),
                           IconButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            icon: const Icon(Icons.close, color: AppColors.deep),
+                            icon: const Icon(
+                              Icons.close,
+                              color: AppColors.deep,
+                            ),
                           ),
                         ],
                       ),
@@ -89,6 +93,22 @@ class StockBatchDetailDialog extends StatelessWidget {
                           ReadOnlyField(
                             label: 'Purchased amount',
                             value: _formatQuantity(batch.purchaseAmount),
+                          ),
+                          ReadOnlyField(
+                            label: 'Available stock',
+                            value: _formatQuantity(batch.availableStock),
+                          ),
+                          ReadOnlyField(
+                            label: 'Sold',
+                            value: _formatQuantity(batch.stocks?.sold ?? 0),
+                          ),
+                          ReadOnlyField(
+                            label: 'Damaged',
+                            value: _formatQuantity(batch.stocks?.damaged ?? 0),
+                          ),
+                          ReadOnlyField(
+                            label: 'Returned',
+                            value: _formatQuantity(batch.stocks?.returned ?? 0),
                           ),
                           ReadOnlyField(
                             label: 'Purchase date',

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:web_end/services/ApiService/api_result.dart';
 import 'package:web_end/services/storage/token_storage.dart';
+import 'package:flutter/foundation.dart';
 
 enum HttpMethod {
   get,
@@ -27,6 +28,14 @@ class ApiService {
       if (token != null && token.isNotEmpty) {
         resolved['Authorization'] = 'Bearer $token';
       }
+
+      assert(() {
+        // Debug-only: helps diagnose unexpected 401s without leaking the token.
+        debugPrint(
+          '[ApiService] auth=${resolved.containsKey('Authorization')} tokenLen=${token?.length ?? 0}',
+        );
+        return true;
+      }());
     }
 
     return resolved;

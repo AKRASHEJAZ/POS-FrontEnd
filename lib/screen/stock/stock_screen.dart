@@ -68,9 +68,7 @@ class _StockScreenState extends State<StockScreen> {
     });
 
     try {
-      final result = await _stockService.getBatches(
-        filters: _currentFilters(),
-      );
+      final result = await _stockService.getBatches(filters: _currentFilters());
 
       if (!mounted) return;
 
@@ -202,6 +200,8 @@ class _StockScreenState extends State<StockScreen> {
                 columns: const [
                   DataColumn(label: Text('Product')),
                   DataColumn(label: Text('Purchased amount')),
+                  DataColumn(label: Text('Available')),
+                  DataColumn(label: Text('Sold')),
                   DataColumn(label: Text('Purchase date')),
                   DataColumn(label: Text('Actions')),
                 ],
@@ -211,6 +211,8 @@ class _StockScreenState extends State<StockScreen> {
                         cells: [
                           DataCell(Text(b.productName ?? '—')),
                           DataCell(Text(_formatQuantity(b.purchaseAmount))),
+                          DataCell(Text(_formatQuantity(b.availableStock))),
+                          DataCell(Text(_formatQuantity(b.stocks?.sold ?? 0))),
                           DataCell(Text(formatCatalogDate(b.createdAt))),
                           DataCell(
                             IconButton(
@@ -238,10 +240,7 @@ class _StockScreenState extends State<StockScreen> {
                   children: [
                     Text('Stock', style: AppTheme.title(context)),
                     const SizedBox(height: 4),
-                    Text(
-                      _subtitleText(),
-                      style: AppTheme.subtitle(context),
-                    ),
+                    Text(_subtitleText(), style: AppTheme.subtitle(context)),
                   ],
                 ),
               ),
