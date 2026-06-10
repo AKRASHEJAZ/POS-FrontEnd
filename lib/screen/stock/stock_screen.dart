@@ -11,6 +11,7 @@ import 'package:web_end/theme/themeColor.dart';
 import 'package:web_end/widgets/catalog/catalog_table_card.dart';
 import 'package:web_end/widgets/common/collapsible_filter_panel.dart';
 import 'package:web_end/widgets/common/pagination_bar.dart';
+import 'package:web_end/widgets/common/responsive_page_padding.dart';
 import 'package:web_end/widgets/stock/stock_filter_bar.dart';
 
 class StockScreen extends StatefulWidget {
@@ -185,8 +186,10 @@ class _StockScreenState extends State<StockScreen> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final hasBoundedHeight =
-            constraints.hasBoundedHeight && constraints.maxHeight.isFinite;
+        final hasRoomForPinnedTable =
+            constraints.hasBoundedHeight &&
+            constraints.maxHeight.isFinite &&
+            constraints.maxHeight >= 640;
 
         final listSection = _loading
             ? const Center(
@@ -290,7 +293,7 @@ class _StockScreenState extends State<StockScreen> {
             ),
         ];
 
-        if (hasBoundedHeight) {
+        if (hasRoomForPinnedTable) {
           content.add(
             Expanded(
               child: Column(
@@ -307,13 +310,17 @@ class _StockScreenState extends State<StockScreen> {
           content.add(_paginationBar());
         }
 
-        return Padding(
-          padding: const EdgeInsets.all(24),
+        final page = Padding(
+          padding: responsivePagePadding(context),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: content,
           ),
         );
+
+        return hasRoomForPinnedTable
+            ? page
+            : SingleChildScrollView(child: page);
       },
     );
   }

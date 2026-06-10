@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:web_end/models/user_model.dart';
 import 'package:web_end/screen/auth/login.dart';
+import 'package:web_end/screen/damage/damage_screen.dart';
 import 'package:web_end/screen/sale/sales_screen.dart';
 import 'package:web_end/screen/dashboard/dashboard_screen.dart';
 import 'package:web_end/screen/customer/customers_screen.dart';
@@ -101,8 +102,10 @@ class _SideBarState extends State<SideBar> {
       case 3:
         return const StockScreen();
       case 4:
-        return const CustomersScreen();
+        return const DamageScreen();
       case 5:
+        return const CustomersScreen();
+      case 6:
         return const UsersScreen();
       default:
         return const DashboardScreen();
@@ -165,27 +168,28 @@ class _SideBarState extends State<SideBar> {
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 200),
                         child: extended
-                      ? Row(
-                          key: const ValueKey('expanded_header'),
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const CircleAvatar(
-                              radius: 20,
-                              backgroundColor: AppColors.mid,
-                              child: Icon(
-                                Icons.point_of_sale,
-                                color: AppColors.light,
-                                size: 22,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              'Smart POS',
-                              style: AppTheme.title(context)
-                                  ?.copyWith(fontSize: 16),
-                            ),
-                          ],
-                        )
+                            ? Row(
+                                key: const ValueKey('expanded_header'),
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const CircleAvatar(
+                                    radius: 20,
+                                    backgroundColor: AppColors.mid,
+                                    child: Icon(
+                                      Icons.point_of_sale,
+                                      color: AppColors.light,
+                                      size: 22,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    'Smart POS',
+                                    style: AppTheme.title(
+                                      context,
+                                    )?.copyWith(fontSize: 16),
+                                  ),
+                                ],
+                              )
                             : const CircleAvatar(
                                 key: ValueKey('collapsed_header'),
                                 radius: 20,
@@ -230,12 +234,16 @@ class _SideBarState extends State<SideBar> {
           child: Column(
             children: [
               buildDrawerHeader(context, extended: true),
-              buildDrawerDestinations(
-                context: context,
-                selectedIndex: _selectedIndex,
-                onSelected: _onDestinationSelected,
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: buildDrawerDestinations(
+                    context: context,
+                    selectedIndex: _selectedIndex,
+                    onSelected: _onDestinationSelected,
+                  ),
+                ),
               ),
-              const Spacer(),
               _buildDrawerProfile(),
             ],
           ),

@@ -10,6 +10,7 @@ import 'package:web_end/screen/users/delete_user_dialog.dart';
 import 'package:web_end/screen/users/update_user_dialog.dart';
 import 'package:web_end/widgets/common/collapsible_filter_panel.dart';
 import 'package:web_end/widgets/common/pagination_bar.dart';
+import 'package:web_end/widgets/common/responsive_page_padding.dart';
 import 'package:web_end/widgets/users/users_filter_bar.dart';
 
 enum _UserSortColumn { name, email, role, status, createdAt }
@@ -188,7 +189,9 @@ class _UsersScreenState extends State<UsersScreen> {
         case _UserSortColumn.email:
           cmp = a.email.toLowerCase().compareTo(b.email.toLowerCase());
         case _UserSortColumn.role:
-          cmp = (a.role ?? '').toLowerCase().compareTo((b.role ?? '').toLowerCase());
+          cmp = (a.role ?? '').toLowerCase().compareTo(
+            (b.role ?? '').toLowerCase(),
+          );
         case _UserSortColumn.status:
           cmp = a.isActive == b.isActive ? 0 : (a.isActive ? -1 : 1);
         case _UserSortColumn.createdAt:
@@ -207,11 +210,26 @@ class _UsersScreenState extends State<UsersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final hasRoomForPinnedTable =
+            constraints.hasBoundedHeight &&
+            constraints.maxHeight.isFinite &&
+            constraints.maxHeight >= 640;
+
+        final pagination = PaginationBar(
+          page: _page,
+          totalPages: _totalPages,
+          totalItems: _totalItems,
+          pageSize: _pageSize,
+          itemLabel: 'users',
+          loading: _loading,
+          onPrevious: _goToPreviousPage,
+          onNext: _goToNextPage,
+          onPageSizeChanged: null,
+        );
+
+        final content = <Widget>[
           Row(
             children: [
               Expanded(
@@ -220,10 +238,7 @@ class _UsersScreenState extends State<UsersScreen> {
                   children: [
                     Text('Users', style: AppTheme.title(context)),
                     const SizedBox(height: 4),
-                    Text(
-                      _subtitleText(),
-                      style: AppTheme.subtitle(context),
-                    ),
+                    Text(_subtitleText(), style: AppTheme.subtitle(context)),
                   ],
                 ),
               ),
@@ -263,26 +278,36 @@ class _UsersScreenState extends State<UsersScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          Expanded(
-            child: Column(
-              children: [
-                Expanded(child: _buildBody(context)),
-                PaginationBar(
-                  page: _page,
-                  totalPages: _totalPages,
-                  totalItems: _totalItems,
-                  pageSize: _pageSize,
-                  itemLabel: 'users',
-                  loading: _loading,
-                  onPrevious: _goToPreviousPage,
-                  onNext: _goToNextPage,
-                  onPageSizeChanged: null,
-                ),
-              ],
+        ];
+
+        if (hasRoomForPinnedTable) {
+          content.add(
+            Expanded(
+              child: Column(
+                children: [
+                  Expanded(child: _buildBody(context)),
+                  pagination,
+                ],
+              ),
             ),
+          );
+        } else {
+          content.add(_buildBody(context));
+          content.add(pagination);
+        }
+
+        final page = Padding(
+          padding: responsivePagePadding(context),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: content,
           ),
-        ],
-      ),
+        );
+
+        return hasRoomForPinnedTable
+            ? page
+            : SingleChildScrollView(child: page);
+      },
     );
   }
 
@@ -346,10 +371,12 @@ class _UsersScreenState extends State<UsersScreen> {
                     ),
                     sortColumnIndex: _columnIndex(_sortColumn),
                     sortAscending: _sortAscending,
-                    headingTextStyle: AppTheme.label(context)?.copyWith(
-                      fontSize: 13,
-                    ),
-                    dataTextStyle: AppTheme.body(context)?.copyWith(fontSize: 14),
+                    headingTextStyle: AppTheme.label(
+                      context,
+                    )?.copyWith(fontSize: 13),
+                    dataTextStyle: AppTheme.body(
+                      context,
+                    )?.copyWith(fontSize: 14),
                     columns: [
                       _column('Name', _UserSortColumn.name),
                       _column('Email', _UserSortColumn.email),

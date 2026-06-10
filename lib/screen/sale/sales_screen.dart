@@ -3,6 +3,7 @@ import 'package:web_end/screen/sale/sale_pos_screen.dart';
 import 'package:web_end/screen/sale/sales_history_tab.dart';
 import 'package:web_end/theme/app_theme.dart';
 import 'package:web_end/theme/themeColor.dart';
+import 'package:web_end/widgets/common/responsive_page_padding.dart';
 
 class SalesScreen extends StatelessWidget {
   const SalesScreen({super.key});
@@ -12,7 +13,7 @@ class SalesScreen extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: responsivePagePadding(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -35,12 +36,7 @@ class SalesScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const Expanded(
-              child: TabBarView(
-                children: [
-                  SalePosScreen(),
-                  SalesHistoryTab(),
-                ],
-              ),
+              child: TabBarView(children: [SalePosScreen(), SalesHistoryTab()]),
             ),
           ],
         ),
@@ -48,4 +44,3 @@ class SalesScreen extends StatelessWidget {
     );
   }
 }
-

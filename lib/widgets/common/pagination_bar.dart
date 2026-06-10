@@ -102,13 +102,14 @@ class PaginationBar extends StatelessWidget {
             return Center(child: nav);
           }
 
-          // On very small widths, keep pagination to a single row (no Wrap)
-          // to avoid vertical overflow in short viewports.
           if (compact) {
-            return Row(
+            return Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 10,
+              runSpacing: 8,
               children: [
                 nav,
-                const Spacer(),
                 pageSizeControl,
               ],
             );

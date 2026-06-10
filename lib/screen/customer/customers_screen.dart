@@ -10,6 +10,7 @@ import 'package:web_end/theme/themeColor.dart';
 import 'package:web_end/widgets/catalog/catalog_table_card.dart';
 import 'package:web_end/widgets/common/collapsible_filter_panel.dart';
 import 'package:web_end/widgets/common/pagination_bar.dart';
+import 'package:web_end/widgets/common/responsive_page_padding.dart';
 import 'package:web_end/widgets/customer/customer_filter_bar.dart';
 
 class CustomersScreen extends StatefulWidget {
@@ -57,8 +58,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
     final result = await _service.getCustomers(
       filters: CustomerFilters(
         name: _nameController.text.trim().isEmpty ? null : _nameController.text,
-        email:
-            _emailController.text.trim().isEmpty ? null : _emailController.text,
+        email: _emailController.text.trim().isEmpty
+            ? null
+            : _emailController.text,
         page: targetPage,
         pageSize: _pageSize,
       ),
@@ -160,64 +162,67 @@ class _CustomersScreenState extends State<CustomersScreen> {
     final body = _loading
         ? const Center(child: CircularProgressIndicator(color: AppColors.mid))
         : _error != null
-            ? Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.error_outline, size: 48, color: Colors.red.shade400),
-                    const SizedBox(height: 12),
-                    Text(_error!, style: AppTheme.body(context)),
-                    const SizedBox(height: 16),
-                    FilledButton.icon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
-                    ),
-                  ],
+        ? Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.error_outline, size: 48, color: Colors.red.shade400),
+                const SizedBox(height: 12),
+                Text(_error!, style: AppTheme.body(context)),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: _load,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry'),
                 ),
-              )
-            : _items.isEmpty
-                ? Center(
-                    child: Text('No customers found', style: AppTheme.body(context)),
-                  )
-                : CatalogTableCard(
-                    columns: const [
-                      DataColumn(label: Text('Name')),
-                      DataColumn(label: Text('Phone')),
-                      DataColumn(label: Text('Email')),
-                      DataColumn(label: Text('Walk-in')),
-                      DataColumn(label: Text('Created')),
-                      DataColumn(label: Text('Actions')),
-                    ],
-                    rows: _items
-                        .map(
-                          (c) => DataRow(
-                            cells: [
-                              DataCell(Text(c.name)),
-                              DataCell(Text(c.phone ?? '—')),
-                              DataCell(Text(c.email ?? '—')),
-                              DataCell(Text(c.isWalkIn ? 'Yes' : 'No')),
-                              DataCell(Text(formatCatalogDate(c.createdAt))),
-                              DataCell(
-                                IconButton(
-                                  tooltip: 'View',
-                                  onPressed: () => CustomerDetailDialog.show(context, c),
-                                  icon: const Icon(
-                                    Icons.info_outline,
-                                    color: AppColors.mid,
-                                  ),
-                                ),
-                              ),
-                            ],
+              ],
+            ),
+          )
+        : _items.isEmpty
+        ? Center(
+            child: Text('No customers found', style: AppTheme.body(context)),
+          )
+        : CatalogTableCard(
+            columns: const [
+              DataColumn(label: Text('Name')),
+              DataColumn(label: Text('Phone')),
+              DataColumn(label: Text('Email')),
+              DataColumn(label: Text('Walk-in')),
+              DataColumn(label: Text('Created')),
+              DataColumn(label: Text('Actions')),
+            ],
+            rows: _items
+                .map(
+                  (c) => DataRow(
+                    cells: [
+                      DataCell(Text(c.name)),
+                      DataCell(Text(c.phone ?? '—')),
+                      DataCell(Text(c.email ?? '—')),
+                      DataCell(Text(c.isWalkIn ? 'Yes' : 'No')),
+                      DataCell(Text(formatCatalogDate(c.createdAt))),
+                      DataCell(
+                        IconButton(
+                          tooltip: 'View',
+                          onPressed: () =>
+                              CustomerDetailDialog.show(context, c),
+                          icon: const Icon(
+                            Icons.info_outline,
+                            color: AppColors.mid,
                           ),
-                        )
-                        .toList(),
-                  );
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+                .toList(),
+          );
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final hasBoundedHeight =
-            constraints.hasBoundedHeight && constraints.maxHeight.isFinite;
+        final hasRoomForPinnedTable =
+            constraints.hasBoundedHeight &&
+            constraints.maxHeight.isFinite &&
+            constraints.maxHeight >= 640;
 
         final content = <Widget>[
           Row(
@@ -236,7 +241,10 @@ class _CustomersScreenState extends State<CustomersScreen> {
                 onPressed: _loading ? null : _openAdd,
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.mid,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                 ),
                 icon: const Icon(Icons.person_add_alt_1, size: 20),
                 label: const Text('Add customer'),
@@ -264,7 +272,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
           const SizedBox(height: 12),
         ];
 
-        if (hasBoundedHeight) {
+        if (hasRoomForPinnedTable) {
           content.add(
             Expanded(
               child: Column(
@@ -280,15 +288,18 @@ class _CustomersScreenState extends State<CustomersScreen> {
           content.add(_paginationBar());
         }
 
-        return Padding(
-          padding: const EdgeInsets.all(24),
+        final page = Padding(
+          padding: responsivePagePadding(context),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: content,
           ),
         );
+
+        return hasRoomForPinnedTable
+            ? page
+            : SingleChildScrollView(child: page);
       },
     );
   }
 }
-

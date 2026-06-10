@@ -451,12 +451,21 @@ class _SalePosScreenState extends State<SalePosScreen> {
         final compact = width < 900;
 
         if (compact) {
-          return Column(
-            children: [
-              Expanded(child: _cartPanel(context, true)),
-              const SizedBox(height: 12),
-              _productPanel(context, true),
-            ],
+          final availableHeight = constraints.maxHeight.isFinite
+              ? constraints.maxHeight
+              : MediaQuery.sizeOf(context).height;
+          final cartHeight = availableHeight < 560
+              ? 360.0
+              : (availableHeight - 180).clamp(360.0, 560.0).toDouble();
+
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: cartHeight, child: _cartPanel(context, true)),
+                const SizedBox(height: 12),
+                _productPanel(context, true),
+              ],
+            ),
           );
         }
 

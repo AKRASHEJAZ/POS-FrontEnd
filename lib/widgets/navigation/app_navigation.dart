@@ -36,6 +36,11 @@ const List<AppNavDestination> appNavDestinations = [
     label: 'Stock',
   ),
   AppNavDestination(
+    icon: Icons.report_problem_outlined,
+    selectedIcon: Icons.report_problem,
+    label: 'Damage',
+  ),
+  AppNavDestination(
     icon: Icons.person_outline,
     selectedIcon: Icons.person,
     label: 'Customers',
@@ -96,7 +101,9 @@ Widget buildDrawerDestinations({
       return ListTile(
         leading: Icon(
           selected ? dest.selectedIcon : dest.icon,
-          color: selected ? AppColors.mid : AppColors.deep.withValues(alpha: 0.6),
+          color: selected
+              ? AppColors.mid
+              : AppColors.deep.withValues(alpha: 0.6),
         ),
         title: Text(
           dest.label,

@@ -4,6 +4,7 @@ import 'package:web_end/screen/product/tabs/products_tab.dart';
 import 'package:web_end/screen/product/tabs/units_tab.dart';
 import 'package:web_end/theme/app_theme.dart';
 import 'package:web_end/theme/themeColor.dart';
+import 'package:web_end/widgets/common/responsive_page_padding.dart';
 
 class ProductScreen extends StatelessWidget {
   const ProductScreen({super.key});
@@ -13,7 +14,7 @@ class ProductScreen extends StatelessWidget {
     return DefaultTabController(
       length: 3,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: responsivePagePadding(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -38,11 +39,7 @@ class ProductScreen extends StatelessWidget {
             const SizedBox(height: 16),
             const Expanded(
               child: TabBarView(
-                children: [
-                  ProductsTab(),
-                  CategoriesTab(),
-                  UnitsTab(),
-                ],
+                children: [ProductsTab(), CategoriesTab(), UnitsTab()],
               ),
             ),
           ],

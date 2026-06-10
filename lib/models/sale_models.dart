@@ -25,14 +25,20 @@ class AddSaleDto {
   final int customerId;
   final List<AddInventoryActionDto> inventoryActions;
 
-  const AddSaleDto({
-    required this.customerId,
-    required this.inventoryActions,
-  });
+  const AddSaleDto({required this.customerId, required this.inventoryActions});
 
   Map<String, dynamic> toJson() => {
-        'customerId': customerId,
-        'inventoryActions': inventoryActions.map((a) => a.toJson()).toList(),
-      };
+    'customerId': customerId,
+    'inventoryActions': inventoryActions.map((a) => a.toJson()).toList(),
+  };
 }
 
+class AddDamageDto {
+  final List<AddInventoryActionDto> inventoryActions;
+
+  const AddDamageDto({required this.inventoryActions});
+
+  Map<String, dynamic> toJson() => {
+    'inventoryActions': inventoryActions.map((a) => a.toJson()).toList(),
+  };
+}

@@ -37,3 +37,5 @@ const String customerAddEndpoint = '${baseUrl}customer/add';
 // Sales / InventoryAction
 const String saleCreateEndpoint = '${baseUrl}InventoryAction/CreateSale';
 const String saleGetEndpoint = '${baseUrl}InventoryAction/GetSale';
+const String damageCreateEndpoint = '${baseUrl}InventoryAction/CreateDamage';
+const String damageGetEndpoint = '${baseUrl}InventoryAction/GetDamage';

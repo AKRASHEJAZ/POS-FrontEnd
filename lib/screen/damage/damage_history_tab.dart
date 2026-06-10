@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:web_end/constants/app_pagination.dart';
-import 'package:web_end/models/sale_filters.dart';
-import 'package:web_end/models/sale_view_model.dart';
-import 'package:web_end/screen/sale/sale_detail_dialog.dart';
-import 'package:web_end/services/sale/sale_service.dart';
+import 'package:web_end/models/damage_filters.dart';
+import 'package:web_end/models/damage_view_model.dart';
+import 'package:web_end/screen/damage/damage_detail_dialog.dart';
+import 'package:web_end/services/damage/damage_service.dart';
 import 'package:web_end/theme/app_theme.dart';
 import 'package:web_end/theme/themeColor.dart';
 import 'package:web_end/widgets/catalog/catalog_table_card.dart';
 import 'package:web_end/widgets/common/collapsible_filter_panel.dart';
 import 'package:web_end/widgets/common/pagination_bar.dart';
-import 'package:web_end/widgets/sale/sales_filter_bar.dart';
+import 'package:web_end/widgets/damage/damage_filter_bar.dart';
 
-class SalesHistoryTab extends StatefulWidget {
-  const SalesHistoryTab({super.key});
+class DamageHistoryTab extends StatefulWidget {
+  const DamageHistoryTab({super.key});
 
   @override
-  State<SalesHistoryTab> createState() => _SalesHistoryTabState();
+  State<DamageHistoryTab> createState() => _DamageHistoryTabState();
 }
 
-class _SalesHistoryTabState extends State<SalesHistoryTab> {
-  final _service = SaleService();
-  final _saleIdController = TextEditingController();
-  final _customerIdController = TextEditingController();
+class _DamageHistoryTabState extends State<DamageHistoryTab> {
+  final _service = DamageService();
+  final _damageIdController = TextEditingController();
+  final _batchIdController = TextEditingController();
+  final _productIdController = TextEditingController();
 
   bool _loading = false;
   String? _error;
-
-  List<SaleModel> _items = [];
+  List<DamageModel> _items = [];
   int _page = 1;
   int _pageSize = kDefaultPageSize;
   int _totalItems = 0;
@@ -40,15 +40,37 @@ class _SalesHistoryTabState extends State<SalesHistoryTab> {
 
   @override
   void dispose() {
-    _saleIdController.dispose();
-    _customerIdController.dispose();
+    _damageIdController.dispose();
+    _batchIdController.dispose();
+    _productIdController.dispose();
     super.dispose();
   }
 
-  int? _parseInt(TextEditingController c) {
-    final t = c.text.trim();
-    if (t.isEmpty) return null;
-    return int.tryParse(t);
+  int? _parseInt(TextEditingController controller) {
+    final value = controller.text.trim();
+    if (value.isEmpty) return null;
+    return int.tryParse(value);
+  }
+
+  String _date(DateTime? date) {
+    if (date == null) return '—';
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  String _formatQuantity(double value) {
+    if (value == value.truncateToDouble()) {
+      return value.toInt().toString();
+    }
+    return value.toStringAsFixed(2);
+  }
+
+  String _countLabel() {
+    if (_loading) return 'Loading...';
+    if (_totalItems == 0) return 'No damage records';
+    if (_totalPages <= 1) {
+      return '$_totalItems damage record${_totalItems == 1 ? '' : 's'}';
+    }
+    return '$_totalItems damage records · page $_page of $_totalPages';
   }
 
   Future<void> _load({int? page}) async {
@@ -58,15 +80,14 @@ class _SalesHistoryTabState extends State<SalesHistoryTab> {
       _error = null;
     });
 
-    final result = await _service.getSales(
-      filters: SaleFilters(
-        id: _parseInt(_saleIdController),
-        customerId: _parseInt(_customerIdController),
+    final result = await _service.getDamages(
+      filters: DamageFilters(
+        id: _parseInt(_damageIdController),
+        inventoryBatchId: _parseInt(_batchIdController),
+        productId: _parseInt(_productIdController),
         page: targetPage,
         pageSize: _pageSize,
         includeActions: true,
-        includeCustomer: true,
-        includeUser: true,
         includeInventoryBatch: true,
       ),
     );
@@ -109,8 +130,9 @@ class _SalesHistoryTabState extends State<SalesHistoryTab> {
   }
 
   void _clearFilters() {
-    _saleIdController.clear();
-    _customerIdController.clear();
+    _damageIdController.clear();
+    _batchIdController.clear();
+    _productIdController.clear();
     setState(() => _page = 1);
     _load();
   }
@@ -132,25 +154,6 @@ class _SalesHistoryTabState extends State<SalesHistoryTab> {
       _page = 1;
     });
     _load();
-  }
-
-  String _countLabel() {
-    if (_loading) return 'Loading...';
-    if (_totalItems == 0) return 'No sales';
-    if (_totalPages <= 1) {
-      return '$_totalItems sale${_totalItems == 1 ? '' : 's'}';
-    }
-    return '$_totalItems sales · page $_page of $_totalPages';
-  }
-
-  String _date(DateTime? date) {
-    if (date == null) return '—';
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-  }
-
-  double _computedTotal(SaleModel s) {
-    if (s.actions.isEmpty) return s.totalAmount;
-    return s.actions.fold<double>(0, (sum, a) => sum + a.lineTotal);
   }
 
   @override
@@ -175,29 +178,35 @@ class _SalesHistoryTabState extends State<SalesHistoryTab> {
             ),
           )
         : _items.isEmpty
-        ? Center(child: Text('No sales found', style: AppTheme.body(context)))
+        ? Center(
+            child: Text(
+              'No damage records found',
+              style: AppTheme.body(context),
+            ),
+          )
         : CatalogTableCard(
             columns: const [
               DataColumn(label: Text('ID')),
               DataColumn(label: Text('Date')),
-              DataColumn(label: Text('Customer')),
-              DataColumn(label: Text('Total')),
+              DataColumn(label: Text('Total qty')),
               DataColumn(label: Text('Created by')),
               DataColumn(label: Text('')),
             ],
             rows: _items
                 .map(
-                  (s) => DataRow(
+                  (damage) => DataRow(
                     cells: [
-                      DataCell(Text('${s.id}')),
-                      DataCell(Text(_date(s.saleDate))),
-                      DataCell(Text(s.customer?.name ?? '—')),
-                      DataCell(Text(_computedTotal(s).toStringAsFixed(2))),
-                      DataCell(Text(s.createdBy?.name ?? '—')),
+                      DataCell(Text('${damage.id}')),
+                      DataCell(Text(_date(damage.damageDate))),
+                      DataCell(
+                        Text(_formatQuantity(damage.totalDamagedQuantity)),
+                      ),
+                      DataCell(Text(damage.createdBy?.name ?? '—')),
                       DataCell(
                         IconButton(
                           tooltip: 'View details',
-                          onPressed: () => SaleDetailDialog.show(context, s),
+                          onPressed: () =>
+                              DamageDetailDialog.show(context, damage),
                           icon: const Icon(
                             Icons.info_outline,
                             color: AppColors.mid,
@@ -216,12 +225,12 @@ class _SalesHistoryTabState extends State<SalesHistoryTab> {
             constraints.hasBoundedHeight &&
             constraints.maxHeight.isFinite &&
             constraints.maxHeight >= 580;
-
         final content = <Widget>[
           CollapsibleFilterPanel(
-            child: SalesFilterBar(
-              saleIdController: _saleIdController,
-              customerIdController: _customerIdController,
+            child: DamageFilterBar(
+              damageIdController: _damageIdController,
+              batchIdController: _batchIdController,
+              productIdController: _productIdController,
               pageSize: _pageSize,
               onPageSizeChanged: _onPageSizeChanged,
               isLoading: _loading,
@@ -244,42 +253,32 @@ class _SalesHistoryTabState extends State<SalesHistoryTab> {
           const SizedBox(height: 12),
         ];
 
+        final pagination = PaginationBar(
+          page: _page,
+          totalPages: _totalPages,
+          totalItems: _totalItems,
+          pageSize: _pageSize,
+          itemLabel: 'damage records',
+          loading: _loading,
+          onPrevious: _goToPreviousPage,
+          onNext: _goToNextPage,
+          onPageSizeChanged: null,
+        );
+
         if (hasRoomForPinnedTable) {
           content.add(
             Expanded(
               child: Column(
                 children: [
                   Expanded(child: body),
-                  PaginationBar(
-                    page: _page,
-                    totalPages: _totalPages,
-                    totalItems: _totalItems,
-                    pageSize: _pageSize,
-                    itemLabel: 'sales',
-                    loading: _loading,
-                    onPrevious: _goToPreviousPage,
-                    onNext: _goToNextPage,
-                    onPageSizeChanged: null,
-                  ),
+                  pagination,
                 ],
               ),
             ),
           );
         } else {
           content.add(body);
-          content.add(
-            PaginationBar(
-              page: _page,
-              totalPages: _totalPages,
-              totalItems: _totalItems,
-              pageSize: _pageSize,
-              itemLabel: 'sales',
-              loading: _loading,
-              onPrevious: _goToPreviousPage,
-              onNext: _goToNextPage,
-              onPageSizeChanged: null,
-            ),
-          );
+          content.add(pagination);
         }
 
         final page = Column(
