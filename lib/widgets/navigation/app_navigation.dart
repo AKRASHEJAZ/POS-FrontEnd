@@ -41,6 +41,11 @@ const List<AppNavDestination> appNavDestinations = [
     label: 'Damage',
   ),
   AppNavDestination(
+    icon: Icons.assignment_return_outlined,
+    selectedIcon: Icons.assignment_return,
+    label: 'Returns',
+  ),
+  AppNavDestination(
     icon: Icons.person_outline,
     selectedIcon: Icons.person,
     label: 'Customers',

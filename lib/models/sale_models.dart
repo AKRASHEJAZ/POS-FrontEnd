@@ -42,3 +42,21 @@ class AddDamageDto {
     'inventoryActions': inventoryActions.map((a) => a.toJson()).toList(),
   };
 }
+
+class AddReturnDto {
+  final int saleId;
+  final String reason;
+  final List<AddInventoryActionDto> inventoryActions;
+
+  const AddReturnDto({
+    required this.saleId,
+    required this.reason,
+    required this.inventoryActions,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'saleId': saleId,
+    'reason': reason.trim(),
+    'inventoryActions': inventoryActions.map((a) => a.toJson()).toList(),
+  };
+}

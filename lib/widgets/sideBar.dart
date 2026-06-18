@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:web_end/models/user_model.dart';
 import 'package:web_end/screen/auth/login.dart';
 import 'package:web_end/screen/damage/damage_screen.dart';
+import 'package:web_end/screen/return/returns_screen.dart';
 import 'package:web_end/screen/sale/sales_screen.dart';
 import 'package:web_end/screen/dashboard/dashboard_screen.dart';
 import 'package:web_end/screen/customer/customers_screen.dart';
@@ -104,8 +105,10 @@ class _SideBarState extends State<SideBar> {
       case 4:
         return const DamageScreen();
       case 5:
-        return const CustomersScreen();
+        return const ReturnsScreen();
       case 6:
+        return const CustomersScreen();
+      case 7:
         return const UsersScreen();
       default:
         return const DashboardScreen();

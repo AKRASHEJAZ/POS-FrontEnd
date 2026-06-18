@@ -1,4 +1,4 @@
-const String baseUrl = 'https://localhost:7194/api/';
+const String baseUrl = 'http://testsmartpos.runasp.net/api/';//'https://localhost:7194/api/';
 
 const String loginEndpoint = '${baseUrl}auth/login';
 const String currentUserEndpoint = '${baseUrl}user/me';
@@ -39,3 +39,5 @@ const String saleCreateEndpoint = '${baseUrl}InventoryAction/CreateSale';
 const String saleGetEndpoint = '${baseUrl}InventoryAction/GetSale';
 const String damageCreateEndpoint = '${baseUrl}InventoryAction/CreateDamage';
 const String damageGetEndpoint = '${baseUrl}InventoryAction/GetDamage';
+const String returnCreateEndpoint = '${baseUrl}InventoryAction/CreateReturn';
+const String returnGetEndpoint = '${baseUrl}InventoryAction/GetReturn';
