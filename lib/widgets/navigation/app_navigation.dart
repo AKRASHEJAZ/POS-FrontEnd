@@ -55,6 +55,11 @@ const List<AppNavDestination> appNavDestinations = [
     selectedIcon: Icons.people,
     label: 'Users',
   ),
+  AppNavDestination(
+    icon: Icons.assessment_outlined,
+    selectedIcon: Icons.assessment,
+    label: 'Reports',
+  ),
 ];
 
 List<NavigationRailDestination> buildRailDestinations(BuildContext context) {

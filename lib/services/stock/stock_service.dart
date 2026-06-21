@@ -1,5 +1,6 @@
 import 'package:web_end/models/inventory_batch_model.dart';
 import 'package:web_end/models/paginated_list_result.dart';
+import 'package:web_end/models/product_stock_model.dart';
 import 'package:web_end/models/stock_filters.dart';
 import 'package:web_end/services/ApiService/Api.dart';
 import 'package:web_end/services/allApis.dart';
@@ -55,6 +56,44 @@ class StockService {
         'Unable to load stock.',
         page: filters.page,
         pageSize: filters.pageSize,
+      );
+    }
+  }
+
+  /// Returns a flat list of per-product stock totals.
+  /// Sends one request with a large pageSize so all products come back
+  /// in a single call; local filtering/pagination is done on the FE.
+  Future<({bool isSuccess, String message, List<ProductStockModel> data})>
+  getProductStock() async {
+    try {
+      final response = await ApiService.request(
+        endpoint: productStockGetEndpoint,
+        method: HttpMethod.post,
+        body: {'page': 1, 'pageSize': 1000},
+        authenticated: true,
+      );
+
+      if (response is Map<String, dynamic>) {
+        final code = response['code'] as int? ?? 0;
+        final message = response['message'] as String? ?? 'Unknown error';
+
+        if (code == 200 && response['data'] != null) {
+          final rawList = response['data'] as List<dynamic>;
+          final items = rawList
+              .map((e) => ProductStockModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+          return (isSuccess: true, message: message, data: items);
+        }
+
+        return (isSuccess: false, message: message, data: <ProductStockModel>[]);
+      }
+
+      return (isSuccess: false, message: 'Unexpected response', data: <ProductStockModel>[]);
+    } catch (_) {
+      return (
+        isSuccess: false,
+        message: 'Unable to load product stock.',
+        data: <ProductStockModel>[],
       );
     }
   }

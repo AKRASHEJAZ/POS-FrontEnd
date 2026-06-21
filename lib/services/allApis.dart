@@ -1,4 +1,4 @@
-const String baseUrl = 'http://testsmartpos.runasp.net/api/';//'https://localhost:7194/api/';
+const String baseUrl = 'http://testsmartpos.runasp.net/api/';//'http://localhost:8080/api/';//'https://localhost:7194/api/'; 
 
 const String loginEndpoint = '${baseUrl}auth/login';
 const String currentUserEndpoint = '${baseUrl}user/me';
@@ -29,6 +29,7 @@ String productDeleteEndpoint(int id) => '${baseUrl}product/Delete/$id';
 // Stock (inventory batches)
 const String stockGetEndpoint = '${baseUrl}stock/get';
 const String stockAddEndpoint = '${baseUrl}stock/add';
+const String productStockGetEndpoint = '${baseUrl}stock/getStock';
 
 // Customer
 const String customerGetEndpoint = '${baseUrl}customer/get';
@@ -41,3 +42,7 @@ const String damageCreateEndpoint = '${baseUrl}InventoryAction/CreateDamage';
 const String damageGetEndpoint = '${baseUrl}InventoryAction/GetDamage';
 const String returnCreateEndpoint = '${baseUrl}InventoryAction/CreateReturn';
 const String returnGetEndpoint = '${baseUrl}InventoryAction/GetReturn';
+
+// Reports
+const String reportGetCountEndpoint = '${baseUrl}report/GetCount';
+const String reportGetExpiredEndpoint = '${baseUrl}report/GetExpiredProducts';

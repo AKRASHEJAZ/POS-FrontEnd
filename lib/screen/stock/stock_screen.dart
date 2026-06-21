@@ -5,6 +5,7 @@ import 'package:web_end/models/product_model.dart';
 import 'package:web_end/models/stock_filters.dart';
 import 'package:web_end/screen/stock/dialogs/add_stock_dialog.dart';
 import 'package:web_end/screen/stock/dialogs/stock_batch_detail_dialog.dart';
+import 'package:web_end/screen/stock/product_stock_tab.dart';
 import 'package:web_end/services/stock/stock_service.dart';
 import 'package:web_end/theme/app_theme.dart';
 import 'package:web_end/theme/themeColor.dart';
@@ -14,16 +15,67 @@ import 'package:web_end/widgets/common/pagination_bar.dart';
 import 'package:web_end/widgets/common/responsive_page_padding.dart';
 import 'package:web_end/widgets/stock/stock_filter_bar.dart';
 
-class StockScreen extends StatefulWidget {
+// ─────────────────────────────────────────────────────────────────────────────
+// StockScreen – tabbed container
+// ─────────────────────────────────────────────────────────────────────────────
+
+class StockScreen extends StatelessWidget {
   final bool canAddStock;
 
   const StockScreen({super.key, this.canAddStock = true});
 
   @override
-  State<StockScreen> createState() => _StockScreenState();
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Tab bar
+          Padding(
+            padding: const EdgeInsets.only(left: 8, right: 8, top: 4),
+            child: TabBar(
+              labelColor: AppColors.mid,
+              unselectedLabelColor: AppColors.deep.withValues(alpha: 0.55),
+              indicatorColor: AppColors.mid,
+              indicatorWeight: 2.5,
+              tabs: const [
+                Tab(icon: Icon(Icons.inventory_2_outlined), text: 'Product Stock'),
+                Tab(icon: Icon(Icons.layers_outlined), text: 'Batch Stock'),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+
+          // Tab views
+          Expanded(
+            child: TabBarView(
+              children: [
+                const ProductStockTab(),
+                BatchStockTab(canAddStock: canAddStock),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class _StockScreenState extends State<StockScreen> {
+// ─────────────────────────────────────────────────────────────────────────────
+// BatchStockTab – the original batch-level inventory view
+// ─────────────────────────────────────────────────────────────────────────────
+
+class BatchStockTab extends StatefulWidget {
+  final bool canAddStock;
+
+  const BatchStockTab({super.key, this.canAddStock = true});
+
+  @override
+  State<BatchStockTab> createState() => _BatchStockTabState();
+}
+
+class _BatchStockTabState extends State<BatchStockTab> {
   int _pageSize = kDefaultPageSize;
 
   final _stockService = StockService();
@@ -241,7 +293,7 @@ class _StockScreenState extends State<StockScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Stock', style: AppTheme.title(context)),
+                    Text('Batch Stock', style: AppTheme.title(context)),
                     const SizedBox(height: 4),
                     Text(_subtitleText(), style: AppTheme.subtitle(context)),
                   ],
