@@ -12,6 +12,9 @@ import 'package:web_end/screen/customer/create_customer_dialog.dart';
 import 'package:web_end/services/customer/customer_service.dart';
 import 'package:web_end/services/sale/sale_service.dart';
 import 'package:web_end/services/stock/stock_service.dart';
+import 'package:web_end/models/sale_view_model.dart';
+import 'package:web_end/models/sale_filters.dart';
+import 'package:web_end/services/receipt/receipt_service.dart';
 import 'package:web_end/theme/app_theme.dart';
 import 'package:web_end/theme/themeColor.dart';
 import 'package:web_end/widgets/common/app_text_field.dart';
@@ -220,13 +223,81 @@ class _SalePosScreenState extends State<SalePosScreen> {
     if (!mounted) return;
 
     if (result.isSuccess) {
+      final saleId = (result.data is num) ? (result.data as num).toInt() : 0;
+      final total = _cart.fold<double>(0, (s, i) => s + (i.quantity * i.batch.sellingPrice));
+
+      final dummySale = SaleModel(
+        id: saleId,
+        saleDate: DateTime.now(),
+        totalAmount: total,
+        customer: _customer,
+        createdBy: null,
+        actions: _cart.map((i) => SaleActionModel(
+          id: 0,
+          inventoryBatchId: i.batch.id,
+          quantity: i.quantity,
+          inventoryBatch: SaleInventoryBatchModel(
+            id: i.batch.id,
+            batchCode: i.batch.batchCode,
+            sellingPrice: i.batch.sellingPrice,
+            purchasedQuantity: i.batch.purchaseAmount,
+            product: SaleProductModel(
+              id: i.batch.productId,
+              name: i.batch.productName ?? 'Unknown',
+            ),
+          ),
+        )).toList(),
+      );
+
+      // Attempt to fetch the actual sale from backend to get the real ID
+      SaleModel? actualSale;
+      try {
+        final fetchResult = await _saleService.getSales(
+          filters: SaleFilters(
+            customerId: _customer!.id,
+            page: 1,
+            pageSize: 10000,
+          ),
+        );
+        if (fetchResult.isSuccess && fetchResult.data.items.isNotEmpty) {
+          actualSale = fetchResult.data.items.reduce((a, b) => a.id > b.id ? a : b);
+        }
+      } catch (_) {
+        // Ignore errors, we will fallback to dummySale
+      }
+
+      final saleToPrint = actualSale ?? dummySale;
+
+      if (!mounted) return;
+
       setState(() {
         _submitting = false;
         _cart.clear();
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(result.message)));
+
+      showDialog(
+        context: context,
+        builder: (c) => AlertDialog(
+          title: const Text('Sale Complete'),
+          content: Text(result.message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(c);
+              },
+              child: const Text('Close'),
+            ),
+            FilledButton.icon(
+              onPressed: () {
+                Navigator.pop(c);
+                ReceiptService.printReceipt(sale: saleToPrint);
+              },
+              icon: const Icon(Icons.print),
+              label: const Text('Print Receipt'),
+            ),
+          ],
+        ),
+      );
       return;
     }
 

@@ -3,6 +3,7 @@ import 'package:web_end/constants/app_pagination.dart';
 import 'package:web_end/models/sale_filters.dart';
 import 'package:web_end/models/sale_view_model.dart';
 import 'package:web_end/screen/sale/sale_detail_dialog.dart';
+import 'package:web_end/services/receipt/receipt_service.dart';
 import 'package:web_end/services/sale/sale_service.dart';
 import 'package:web_end/theme/app_theme.dart';
 import 'package:web_end/theme/themeColor.dart';
@@ -195,13 +196,26 @@ class _SalesHistoryTabState extends State<SalesHistoryTab> {
                       DataCell(Text(_computedTotal(s).toStringAsFixed(2))),
                       DataCell(Text(s.createdBy?.name ?? '—')),
                       DataCell(
-                        IconButton(
-                          tooltip: 'View details',
-                          onPressed: () => SaleDetailDialog.show(context, s),
-                          icon: const Icon(
-                            Icons.info_outline,
-                            color: AppColors.mid,
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              tooltip: 'Print receipt',
+                              onPressed: () => ReceiptService.printReceipt(sale: s),
+                              icon: const Icon(
+                                Icons.print,
+                                color: AppColors.mid,
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'View details',
+                              onPressed: () => SaleDetailDialog.show(context, s),
+                              icon: const Icon(
+                                Icons.info_outline,
+                                color: AppColors.mid,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

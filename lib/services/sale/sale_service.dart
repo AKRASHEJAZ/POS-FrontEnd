@@ -10,11 +10,12 @@ import 'package:web_end/services/api/paginated_api_helper.dart';
 class SaleCreateResult {
   final bool isSuccess;
   final String message;
+  final dynamic data;
 
-  const SaleCreateResult._({required this.isSuccess, required this.message});
+  const SaleCreateResult._({required this.isSuccess, required this.message, this.data});
 
-  factory SaleCreateResult.success([String message = 'Sale created']) =>
-      SaleCreateResult._(isSuccess: true, message: message);
+  factory SaleCreateResult.success({String message = 'Sale created', dynamic data}) =>
+      SaleCreateResult._(isSuccess: true, message: message, data: data);
 
   factory SaleCreateResult.failure(String message) =>
       SaleCreateResult._(isSuccess: false, message: message);
@@ -45,7 +46,14 @@ class SaleService {
       }
 
       if (result.isSuccess) {
-        return SaleCreateResult.success(_messageFrom(result, 'Sale created'));
+        dynamic responseData;
+        if (result.body is Map) {
+          responseData = result.body['data'];
+        }
+        return SaleCreateResult.success(
+          message: _messageFrom(result, 'Sale created'),
+          data: responseData,
+        );
       }
 
       return SaleCreateResult.failure(
